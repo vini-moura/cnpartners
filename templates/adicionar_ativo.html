@@ -1,0 +1,80 @@
+{% include "header.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+<body>
+<div class="wrapper" >
+    {% include "sidebar.html" %}
+
+    <!-- Page Content -->
+    <div id="content">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <div class="m-2" id="rowtext ">
+                    <h3>{{user_name}}</h3>
+                    <h6>{{user_time}}</h6>
+                </div>
+            </div>
+        </nav>
+        <br>
+        <!--Clientes-->
+        <div class="row mt-12" id="">
+           <h2> Adicionar Ativo Na Carteira</h2>
+            <br><br>
+            <div class="row justify-content-center">
+                <div class="col-md-3">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Renda Fixa</h5>
+                            <p class="card-text">Some quick example text to build on the card title.</p>
+                            <a href="{{ url_for('adicionar_rendafixa') }}" class="btn btn-primary">Adicionar Renda Fixa</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Fundos</h5>
+                            <p class="card-text">Some quick example text to build on the card title.</p>
+                            <a href="{{ url_for('adicionar_fundos') }}" class="btn btn-primary">Adicionar Fundos</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Renda Variavel</h5>
+                            <p class="card-text">Some quick example text to build on the card title.</p>
+                            <a href="{{ url_for('adicionar_rendavariavel') }}" class="btn btn-primary">Adicionar Renda Variável</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Previdência</h5>
+                            <p class="card-text">Some quick example text to build on the card title.</p>
+                            <a href="{{ url_for('adicionar_rendavariavel') }}" class="btn btn-primary">Adicionar Renda Variável</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <table>
+                <thead>
+                    <th> # </th>
+                    <th> Ativo </th>
+                    <th> Quantidade </th>
+                    <th> Vencimento</th>
+                    <th> Preço </th>
+                    <th> Comissão </th>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% include "footer.html"%}

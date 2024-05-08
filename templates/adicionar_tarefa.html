@@ -1,0 +1,67 @@
+{% include "header.html"%}
+{% from 'bootstrap5/form.html' import render_form %}
+<body>
+<div class="wrapper" >
+{% include "sidebar.html" %}
+
+
+    <!-- Page Content -->
+    <div id="content">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <div class="m-2" id="rowtext ">
+                    <h3>{{user_name}}</h3>
+                    <h6>{{user_time}}</h6>
+                </div>
+                </div>
+                </nav>
+                <br>
+                <br>
+
+                <!--Clientes-->
+                <div class="container">
+                <h4>Adicionar Nova Tarefa: {{ cliente.nome }}</h4>
+
+                <form method="POST" action="{{ url_for('adicionar_tarefa', id=cliente.id) }}">
+                    <input type="hidden" name="id" value="{{ id }}">
+                    <div class="mb-3">
+                        <label for="nomeTarefa" class="form-label">Tarefa</label>
+                        <textarea rows="5" type="text" class="form-control" id="nomeTarefa" name="tarefa" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                    <label class="form-label">Tipo</label>
+                    <select class="form-select" id="tipo" name="tipo" required>
+                        <option value="Ligação">Ligação</option>
+                        <option value="Reunião">Reunião</option>
+                        <option value="Abertura de Conta">Abertura de Conta</option>
+                        <option value="Montar Carteira">Montar Carteira</option>
+                    </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Prioridade</label>
+                        <select class="form-select" id="prioridade" name="prioridade" required>
+                            <option value="Alta">Alta</option>
+                            <option value="Média">Média</option>
+                            <option value="Baixa">Baixa</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="prazoTarefa" class="form-label">Prazo</label>
+                        <input type="date" class="form-control" id="prazoTarefa" name="prazo" required>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="mesa" value='mesa'>
+                        <label for="mesa"> Enviar para mesa?</label><br>
+                    </div>
+                    <br>
+                    <button type="submit" class="btn btn-success">Adicionar Tarefa</button>
+                </form>
+        </div>
+
+
+
+
+      </div>
+</div>
+
+{% include "footer.html"%}
