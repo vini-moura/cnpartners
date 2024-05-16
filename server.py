@@ -1,97 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, app, jsonify
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_bootstrap import Bootstrap5
-from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-# from flask_wtf import FlaskForm
-# from wtforms import StringField, IntegerField, FloatField, DecimalField, PasswordField, SubmitField
-# from wtforms.validators import DataRequired, Email
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import Integer, String, Float, Date, and_, or_
-from datetime import datetime, timedelta
-import requests
-import pandas as pd
-from sqlalchemy.exc import IntegrityError
+from app import *
 
-
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "!AcvMLfVDTRxc624^t^R"
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crm.db'
-class Base(DeclarativeBase):
-    pass
-
-db = SQLAlchemy(model_class=Base)
-db.init_app(app)
-bootstrap = Bootstrap5(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-class Clientes(db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    nome: Mapped[str] = mapped_column(String(250), nullable=False)
-    pj: Mapped[int] = mapped_column(Integer, nullable=False)
-    email: Mapped[str] = mapped_column(String(250), nullable=False)
-    telefone: Mapped[int] = mapped_column(Integer, nullable=False)
-    endereco: Mapped[str] = mapped_column(String(300), nullable=True)
-    id_assessor: Mapped[str] = mapped_column(Integer, nullable=False)
-    assessor: Mapped[str] = mapped_column(String(250), nullable=False)
-    conta: Mapped[int] = mapped_column(Integer, nullable=True, unique=True)
-    cod_bolsa: Mapped[int] = mapped_column(Integer, nullable=True, unique=True)
-    perfil: Mapped[int] = mapped_column(Integer, nullable=True)
-    valor_estimado: Mapped[int] = mapped_column(Integer, nullable=True)
-    valor_atual: Mapped[int] = mapped_column(Integer, nullable=False)
-    abertura: Mapped[Date] = mapped_column(Date, nullable=True)
-    fechamento: Mapped[Date] = mapped_column(Date, nullable=True)
-    inicio: Mapped[Date] = mapped_column(Date, nullable=True)
-    status: Mapped[str] = mapped_column(String(250), nullable=True)
-
-
-class User(UserMixin, db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    email: Mapped[str] = mapped_column(String(100), unique=False)
-    password: Mapped[str] = mapped_column(String(250), nullable=False)
-    name: Mapped[str] = mapped_column(String(1000), nullable=False)
-    admin: Mapped[int] = mapped_column(Integer, nullable=True)
-    mesa: Mapped[int] = mapped_column(Integer)
-    # mesa: 0 não 1 RF 2 RV
-
-
-class Tarefas(db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    cliente_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    tarefa: Mapped[str] = mapped_column(String(250))
-    tipo: Mapped[str] = mapped_column(String(250))
-    prioridade: Mapped[str] = mapped_column(String(250))
-    prazo: Mapped[Date] = mapped_column(Date)
-    status: Mapped[str] = mapped_column(String(250))
-    observacao: Mapped[str] = mapped_column(String(500), nullable=True)
-    mesa: Mapped[int] = mapped_column(Integer)
-
-
-class ativos(db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    id_cliente: Mapped[int] = mapped_column(Integer)
-    categoria: Mapped[str] = mapped_column(String(250))
-    tipo: Mapped[str] = mapped_column(String(250))
-    nome: Mapped[str] = mapped_column(String(250))
-    taxa: Mapped[float] = mapped_column(Float)
-    cupom: Mapped[float] = mapped_column(Float)
-
-
-class carteira(db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    id_cliente: Mapped[int] = mapped_column(Integer)
-    categoria: Mapped[str] = mapped_column(String(250))
-    tipo: Mapped[str] = mapped_column(String(250))
-    nome: Mapped[str] = mapped_column(String(250))
-    taxa: Mapped[float] = mapped_column(Float)
-    cupom: Mapped[float] = mapped_column(Float)
-
-
-with app.app_context():
-    db.create_all()
-
+pd.options.display.max_columns = 20
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -101,7 +10,7 @@ def load_user(user_id):
 @app.before_request
 def make_session_permanet():
     session.permanent = True
-    app.permanet_session_lifetime = timedelta(minutes=5)
+    app.permanet_session_lifetime = timedelta(minutes=20)
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -177,6 +86,7 @@ def login():
             session['user_name'] = user.name
             session['user_id'] = user.id
             session['admin'] = user.admin
+            session['mesa'] = user.mesa
             return redirect(url_for('monitorar'))
     return render_template("login.html", logged_in=current_user.is_authenticated)
 
@@ -250,17 +160,16 @@ def cadastrar():
 
 # rotas tarefas: mostram em lista tarefas do cliente, adiciona e edita tarefa e atualiza DB,
 # adiciona e edita carteira do cliente
-@app.route('/tarefas/<int:id>', methods=["POST", "GET"])
+@app.route('/tarefas', methods=["POST", "GET"])
 @login_required
-def tarefas(id):
-    session['user_id'] = id
+def tarefas():
+    id_do_cliente = session.get('cliente_id')
     user_name = session.get('user_name')
-    result = db.session.execute(db.select(Clientes).where(Clientes.id == id))
-    cliente = result.scalar()
-    result = db.session.execute(
-        db.select(Tarefas).where(Tarefas.cliente_id == cliente.id, Tarefas.status != "cancelado", Tarefas.status != 'conluído', Tarefas.mesa != 1))
-    tarefa = result.scalars()
-    return render_template("tarefas.html", user_name=user_name, cliente=cliente, tarefa=tarefa)
+    cliente = db.session.execute(db.select(Clientes).where(Clientes.id == id_do_cliente)).scalar()
+    print(cliente.nome)
+    tarefa = db.session.execute(db.select(Tarefas).where(Tarefas.cliente_id == id_do_cliente, Tarefas.status != "cancelado", Tarefas.status != 'conluído', Tarefas.mesa != 1)).scalars()
+    mesa = session.get('mesa')
+    return render_template("tarefas.html", user_name=user_name, cliente=cliente, tarefa=tarefa, mesa=mesa)
 
 
 @app.route('/adicionar_tarefa/<int:id>', methods=["POST", "GET"])
@@ -275,6 +184,8 @@ def adicionar_tarefa(id):
         mesa = request.form.get('mesa')
         if mesa =='mesa':
             mesa=1
+        else:
+            mesa=0
 
         novo = Tarefas(
             cliente_id=id,
@@ -287,6 +198,7 @@ def adicionar_tarefa(id):
         )
         db.session.add(novo)
         db.session.commit()
+
         return redirect(url_for('tarefas', id=id))
     user_name = session.get('user_name')
     result = db.session.execute(db.select(Clientes).where(Clientes.id == id))
@@ -307,17 +219,21 @@ def editar_tarefa(id):
         mesa = request.form.get('mesa')
         if mesa == 'mesa':
             mesa = 1
-
-        result = db.session.execute(db.select(Tarefas).where(Tarefas.id == id))
-        resultado = result.scalar()
-        resultado.tarefa = tarefa
-        resultado.prioridade = prioridade
-        resultado.prazo = prazo
-        resultado.status = status
-        resultado.observacao = observacao
-        resultado.mesa = mesa
-        db.session.commit()
-        return redirect(url_for("tarefas", id=id))
+        else:
+            mesa = 0
+        tarefa_to_update = db.session.execute(db.select(Tarefas).where(Tarefas.id == id)).scalar()
+        with app.app_context():
+            tarefa_to_update.tarefa = tarefa
+            tarefa_to_update.prioridade = prioridade
+            tarefa_to_update.prazo = prazo
+            tarefa_to_update.status = status
+            tarefa_to_update.observacao = observacao
+            tarefa_to_update.mesa = mesa
+            db.session.add(tarefa_to_update)
+            db.session.commit()
+        tid = tarefa_to_update.cliente_id
+        cliente = db.session.execute(db.select(Clientes).where(Clientes.id == tid)).scalar()
+        return redirect(url_for("sessiondid", id=cliente.id))
     user_name = session.get('user_name')
     result = db.session.execute(db.select(Tarefas).where(Tarefas.id == id))
     tarefa = result.scalar()
@@ -349,13 +265,12 @@ def adicionar_ativo(id):
 @app.route('/adicionar_rendafixa/', methods=["POST", "GET"])
 @login_required
 def adicionar_rendafixa():
-    if request.method == "POST":
-        return redirect(url_for('adicionar_ativo'))
+
     user_name = session.get('user_name')
-    titulos = pd.read_csv('titulos publicos.csv')
-    creditos = pd.read_csv('cri-cra.csv')
-    debentures = pd.read_csv('debentures.csv')
-    return render_template("adicionar_rendafixa.html", user_name=user_name, titulos=titulos, creditos=creditos, debentures=debentures)
+    mesa = session.get('mesa')
+    response = db.session.execute(db.select(Renda_fixa))
+    titulos = response.scalars()
+    return render_template("adicionar_rendafixa.html", user_name=user_name, mesa=mesa, titulos=titulos)
 
 
 @app.route('/adicionar_fundos/', methods=["POST", "GET"])
@@ -402,6 +317,14 @@ def verificar_cod_bolsa():
     cod_bolsa = request.args.get('cod_bolsa')
     existe = Clientes.query.filter_by(cod_bolsa=cod_bolsa).first() is not None
     return jsonify({'exists': existe})
+
+@app.route("/sessiondid/<int:did>/<route>")
+@login_required
+def sessiondid(did,route):
+    if route == 'tarefas':
+        session['cliente_id'] = did
+        return redirect(url_for('tarefas'))
+
 
 @app.errorhandler(401)
 def unauthorized(error):

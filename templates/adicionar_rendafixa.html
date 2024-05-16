@@ -1,46 +1,36 @@
-{% include "header.html" %}
-{% from 'bootstrap5/form.html' import render_form %}
-<body>
-<div class="wrapper">
-    {% include "sidebar.html" %}
-
-    <!-- Page Content -->
-    <div id="content">
-        <form method="post">
-        <h4> Tesouro Direto </h4>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Tipo</th>
-                    <th>Vencimento</th>
-                    <th>Tx. Juros</th>
-                </tr>
-            </thead>
-            <tbody>
+{% extends 'base.html' %}
+{% block title%} Adicionar Ativo {%endblock%}
+{% block content %}
+<div id="ativo">
+    <form method="post">
+    <br>
+    <h4> Tesouro Direto </h4>
+    <table class="table w-100">
+        <thead>
+            <tr>
+                <th>Categoria</th>
+                <th>Nome</th>
+                <th>Vencimento</th>
+                <th>Tx. Juros</th>
+                <th>Adicionar?</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
             {% for papel in titulos %}
-                <tr>
-                    <td>{{ papel.tipo_titulo }}</td>
-                    <td>{{ data_vencimento }}</td>
-                    <td>{{ pu }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+            <tr>
+                <td>{{ papel.tipo_titulo}}</td>
+                <td>{{ papel.emissor }}</td>
+                <td>{{ papel.data_vencimento}}</td>
+                <td>{{ papel.taxa_juros}}</td>
+                <td><input type="checkbox" name="record_tesouro" value="{{papel.id}}"></select></td>
+                <td><input name="qtd_titulos_{{papel.id}}" ></td>
+            </tr>
 
-        <br>
-        <hr>
-        <br>
-        <h4> CRI/CRA - LCI/LCA </h4>
-        {% for papel in creditos %}
-        {% endfor %}
-        <br>
-        <hr>
-        <br>
-        <h4> Debênture </h4>
-        {% for papel in debentures %}
-        {% endfor %}
-        </form>
-    </div>
+            {% endfor %}
+        </tbody>
+    </table>
+    <input class="btn btn-success" type="submit" value="Cadastrar">
+    </form>
 </div>
-{% include "footer.html" %}
+{%endblock%}

@@ -1,11 +1,8 @@
-/*
-    DEMO STYLE
-*/
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 
 .wrapper {
     display: flex;
-    height: 100vh; /* Altura total da viewport */
+    height: 100vh;
 }
 
 #sidebar {
@@ -72,7 +69,7 @@
 
 #sidebar ul li a {
     text-align: left;
-    color: CACACA;
+    color: #CACACA;
 }
 
 #sidebar.active ul li a {

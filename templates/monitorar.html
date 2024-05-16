@@ -1,75 +1,36 @@
-{% include "header.html" %}
-{% from 'bootstrap5/form.html' import render_form %}
-<body>
-<div class="wrapper" >
-    {% include "sidebar.html" %}
-
-
-    <!-- Page Content -->
-    <div id="content">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-                <div class="m-2" id="rowtext ">
-                    <h3>{{user_name}}</h3>
-                    <h6>{{user_time}}</h6>
-                </div>
-                <!--
-                <div class="container" style="width: 25%; text-align: center">
-                    <h6>Progresso Geral</h6>
-                    <div class="progress">
-                        <div class="progress-bar bg-success" style="width: {{media_total}}%" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{media_total}}</div>
-                    </div>
-                </div>
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        usuario[0].time[0]
-                    </button>
-                    <ul class="dropdown-menu">
-                        usuario[0].time
-                        <li><a class="dropdwon-item">usuario[0].time[t]</a></li>
-                    </ul>
-                </div>
-                -->
-                </div>
-                </nav>
-
-                <!--Clientes-->
-                <div class="" id="">
-                    <table class="table" >
-                        <thead>
-                        <tr>
-                            <th scope="col">Nome</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Prioridade</th>
-                            <th scope="col">Valor Estimado</th>
-                            <th scope="col">Valor Atual</th>
-                            <th scope="col">Cliente desde</th>
-                            <th scope="col">telefone</th>
-                            <th>Data Provável Fechamento</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                      {% for cliente in clientes %}
-
-                          <tr>
-                              <td><a href="{{ url_for('tarefas', id = cliente.id)}}">{{ cliente.nome }} </a></td>
-                              <td>{{ cliente.status }}</td>
-                              <td>{{ cliente.prioridade }}</td>
-                              <td>{{ cliente.valor_estimado }}</td>
-                              <td>{{ cliente.valor_atual }}</td>
-                              <td>{{ cliente.inicio }} </td>
-                              <td>{{ cliente.telefone }}</td>
-                              <td>{{ cliente.data_fechamento}}</td>
-                              <td><a href="{{ url_for('tarefas', id=cliente.id) }}" class="btn btn-primary">Atualizar</a></td>
-
-                          </tr>
-
-                      {% endfor %}
-                      </tbody>
-                    </table>
-               </div>
-      </div>
+{% extends 'base.html' %}
+{% block title%}Monitorar Clientes {%endblock%}
+{% block content%}
+<!--Clientes-->
+<div class="" id="">
+    <table class="table" >
+        <thead>
+            <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Status</th>
+                <th scope="col">Prioridade</th>
+                <th scope="col">Valor Estimado</th>
+                <th scope="col">Valor Atual</th>
+                <th scope="col">Cliente desde</th>
+                <th scope="col">telefone</th>
+                <th>Data Provável Fechamento</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+              <td><a href="{{ url_for('sessiondid', did = cliente.id, route=tarefas)}}"> {{ cliente.nome }} </a></td>
+              <td>{{ cliente.status }}</td>
+              <td>{{ cliente.prioridade }}</td>
+              <td>{{ cliente.valor_estimado }}</td>
+              <td>{{ cliente.valor_atual }}</td>
+              <td>{{ cliente.inicio }} </td>
+              <td>{{ cliente.telefone }}</td>
+              <td>{{ cliente.data_fechamento}}</td>
+              <td><a href="{{ url_for('sessiondid', did=cliente.id, route=tarefas) }}" class="btn btn-primary">Atualizar</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-
-{% include "footer.html"%}
+{%endblock%}
