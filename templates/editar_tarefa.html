@@ -30,7 +30,7 @@
         <select class="form-select" id="status" name="status" required>
             <option value="novo" {% if tarefa.status =="novo" %}selected{% endif %}>novo</option>
             <option value="iniciado"  {% if tarefa.status=='iniciado' %}selected{% endif %}>Iniciado</option>
-            <option value="concluido" {% if tarefa.status=='concluído' %}selected{% endif %}>Concluído</option>
+            <option value="concluido" {% if tarefa.status=='concluido' %}selected{% endif %}>Concluído</option>
             <option value="cancelado"  {% if tarefa.status=='cancelado' %}selected{% endif %}>Cancelado</option>
         </select>
     </div>

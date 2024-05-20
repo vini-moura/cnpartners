@@ -32,6 +32,7 @@ def home():
             session['user_name'] = user.name
             session['user_id'] = user.id
             session['admin'] = user.admin
+            session['mesa'] = user.mesa
             return redirect(url_for('monitorar'))
     return render_template("login.html", logged_in=current_user.is_authenticated)
 
@@ -105,6 +106,7 @@ def monitorar():
     user_id = session.get('user_id')
     admin = session.get("admin")
     mesa = session.get("mesa")
+    print(mesa)
     result = db.session.execute(db.select(Clientes).where(Clientes.id_assessor == user_id))
     clientes = result.scalars()
     return render_template('monitorar.html', user_name=name, user_id=user_id, clientes=clientes, admin=admin, mesa=mesa)
@@ -164,10 +166,11 @@ def cadastrar():
 @login_required
 def tarefas():
     id_do_cliente = session.get('cliente_id')
+    if id_do_cliente is None:
+        return "Cliente ID não encontrado na sessão", 400
     user_name = session.get('user_name')
     cliente = db.session.execute(db.select(Clientes).where(Clientes.id == id_do_cliente)).scalar()
-    print(cliente.nome)
-    tarefa = db.session.execute(db.select(Tarefas).where(Tarefas.cliente_id == id_do_cliente, Tarefas.status != "cancelado", Tarefas.status != 'conluído', Tarefas.mesa != 1)).scalars()
+    tarefa = db.session.execute(db.select(Tarefas).where(Tarefas.cliente_id == id_do_cliente, Tarefas.status != "cancelado", Tarefas.status != 'concluido', Tarefas.mesa != 1)).scalars()
     mesa = session.get('mesa')
     return render_template("tarefas.html", user_name=user_name, cliente=cliente, tarefa=tarefa, mesa=mesa)
 
@@ -229,11 +232,11 @@ def editar_tarefa(id):
             tarefa_to_update.status = status
             tarefa_to_update.observacao = observacao
             tarefa_to_update.mesa = mesa
-            db.session.add(tarefa_to_update)
+            db.session.merge(tarefa_to_update)
             db.session.commit()
         tid = tarefa_to_update.cliente_id
         cliente = db.session.execute(db.select(Clientes).where(Clientes.id == tid)).scalar()
-        return redirect(url_for("sessiondid", id=cliente.id))
+        return redirect(url_for("sessiondid", did=cliente.id, route='tarefas'))
     user_name = session.get('user_name')
     result = db.session.execute(db.select(Tarefas).where(Tarefas.id == id))
     tarefa = result.scalar()
@@ -249,7 +252,21 @@ def tarefas_concluidas(id):
     return render_template("tarefas_concluidas", tarefa=tarefa, user_name=user_name)
 
 
-carrinho_de_investimentos = []
+@app.route("/tarefas_mesa/")
+@login_required
+def tarefas_mesa():
+    tarefas = db.session.execute(db.select(Tarefas).where(Tarefas.mesa == 1, Tarefas.status =='concluido')).scalars()
+    return render_template('tarefas_mesa.html', tarefas=tarefas)
+
+
+@app.route("/tarefas_concluidas_mesa/")
+@login_required
+def tarefas_concluidas_mesa():
+    tarefas = db.session.execute(db.select(Tarefas).where(Tarefas.mesa == 1, Tarefas.status=='concluido')).scalars()
+    return render_template('tarefas_concluidas_mesa.html', tarefas=tarefas)
+
+
+CARRINHO = []
 @app.route('/adicionar_ativo/<int:id>', methods=["POST", "GET"])
 @login_required
 def adicionar_ativo(id):
@@ -318,12 +335,15 @@ def verificar_cod_bolsa():
     existe = Clientes.query.filter_by(cod_bolsa=cod_bolsa).first() is not None
     return jsonify({'exists': existe})
 
+
 @app.route("/sessiondid/<int:did>/<route>")
-@login_required
-def sessiondid(did,route):
+def sessiondid(did, route):
     if route == 'tarefas':
         session['cliente_id'] = did
+        print(did)
         return redirect(url_for('tarefas'))
+    else:
+        pass
 
 
 @app.errorhandler(401)
@@ -333,6 +353,7 @@ def unauthorized(error):
 @app.errorhandler(404)
 def unauthorized(error):
     return redirect(url_for('login'))
+
 
 if __name__ == "__main__":
     app.run(debug=True)

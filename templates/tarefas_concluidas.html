@@ -1,0 +1,79 @@
+{% extends "base.html"%}
+{% block title%}Tarefas Concluidas{%endblock%}
+{% block content%}
+<br>
+<div class="" id="">
+    <h5>Tarefas</h5>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <table class="table ">
+                <thead>
+                    <tr>
+                        <th>Tarefa</th>
+                        <th>Tipo</th>
+                        <th>Prioridade</th>
+                        <th>Prazo</th>
+                        <th>Status</th>
+                        <th></th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tarefa in tarefa %}
+                    <tr>
+                        <td>{{ tarefa.tarefa }}</td>
+                        <td>{{ tarefa.tipo }}</td>
+                        <td>{{ tarefa.prioridade }}</td>
+                        <td>{{ tarefa.prazo }}</td>
+                        <td>{{ tarefa.status }}</td>
+                        <td><a href="{{url_for('editar_tarefa', id=tarefa.id)}}">Editar</a></td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </li>
+    </ul>
+    <div style="margin-top: 20px;">
+       <a href="{{ url_for('adicionar_tarefa', id=cliente.id) }}" class="btn btn-success">Adicionar Tarefa</a>
+       <a href="{{ url_for('tarefas_concluidas', id=cliente.id) }}" class="btn btn-success">Tarefas Concluídas</a>
+    </div>
+    <hr>
+    <h5>Ativos Alocados em Carteira</h5>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Ativo</th>
+            <th scope="col">Quantidade</th>
+            <th scope="col">Valor Unitário</th>
+            <th scope="col">Valor Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ativo in ativos %}
+            <tr>
+                <td>{{ ativo.nome }}</td>
+                <td>{{ ativo.quantidade }}</td>
+                <td>{{ ativo.valor_unitario }}</td>
+                <td>{{ ativo.valor_total }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 20px;">
+       <a href="{{ url_for('adicionar_ativo', id=cliente.id) }}" class="btn btn-success">Adicionar Ativo</a>
+    </div>
+
+    <br>
+    <hr>
+    <br>
+
+    <div class="editar-dados-cliente" style="margin-top: 20px;">
+        <a href="{{ url_for('editar_cliente', id=cliente.id) }}" class="btn btn-warning">Editar Dados do Cliente</a>
+    </div>
+    <br>
+    <br>
+
+</div>
+{%endblock%}

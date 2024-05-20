@@ -13,24 +13,23 @@
                 <th scope="col">Valor Atual</th>
                 <th scope="col">Cliente desde</th>
                 <th scope="col">telefone</th>
-                <th>Data Provável Fechamento</th>
             </tr>
         </thead>
         <tbody>
             {% for cliente in clientes %}
             <tr>
-              <td><a href="{{ url_for('sessiondid', did = cliente.id, route=tarefas)}}"> {{ cliente.nome }} </a></td>
+              <td><a href="{{ url_for('sessiondid', did=cliente.id, route='tarefas') }}"> {{ cliente.nome }} </a></td>
               <td>{{ cliente.status }}</td>
               <td>{{ cliente.prioridade }}</td>
               <td>{{ cliente.valor_estimado }}</td>
               <td>{{ cliente.valor_atual }}</td>
               <td>{{ cliente.inicio }} </td>
               <td>{{ cliente.telefone }}</td>
-              <td>{{ cliente.data_fechamento}}</td>
-              <td><a href="{{ url_for('sessiondid', did=cliente.id, route=tarefas) }}" class="btn btn-primary">Atualizar</a></td>
+              <td><a href="{{ url_for('sessiondid', did=cliente.id, route='tarefas') }}" class="btn btn-primary">Atualizar</a></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
 {%endblock%}
+
