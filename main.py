@@ -19,6 +19,7 @@ def home():
     if request.method == "POST":
         email = request.form.get('email')
         password = request.form.get('password')
+
         result = db.session.execute(db.select(User).where(User.email == email))
         user = result.scalar()
         # Email doesn't exist or password incorrect.
@@ -56,7 +57,8 @@ def register():
             email=request.form.get('email'),
             password=hash_and_salted_password,
             name=request.form.get('name'),
-            admin=0
+            admin= int(request.form.get('admin')),
+            mesa=int(request.form.get('mesa'))
         )
         db.session.add(new_user)
         db.session.commit()
