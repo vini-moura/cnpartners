@@ -98,7 +98,7 @@ def get_debenture():
         if response.status_code == 200:
             data = response.json()
             df = pd.DataFrame(data)
-            df.to_csv('cri-cra.csv', index=False)
+            df.to_csv('cri-cra2.csv', index=False)
             return df
 
     except json.JSONDecodeError:

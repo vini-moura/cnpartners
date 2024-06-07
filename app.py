@@ -1,6 +1,7 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session, app, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_bootstrap import Bootstrap5
+from flask_bootstrap import Bootstrap
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 # from flask_wtf import FlaskForm
 # from wtforms import StringField, IntegerField, FloatField, DecimalField, PasswordField, SubmitField
@@ -9,22 +10,27 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Float, Date, and_, or_, create_engine
 from datetime import datetime, timedelta
-#import requests
+# import requests
 import pandas as pd
 from sqlalchemy.exc import IntegrityError
+import os
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "!AcvMLfVDTRxc624^t^R"
+app.config["SECRET_KEY"] = os.environ.get('FLASK_KEY')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crm.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///posts.db")
+
+
 class Base(DeclarativeBase):
     pass
 
+
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
-bootstrap = Bootstrap5(app)
+bootstrap = Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
 
 class Clientes(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
