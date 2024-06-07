@@ -65,8 +65,8 @@ def register():
         login_user(new_user)
         session['user_id'] = new_user.id
         session["user_name"] = new_user.name
-        session['admin'] = user.admin
-        session['mesa'] = user.mesa
+        session['admin'] = new_user.admin
+        session['mesa'] = new_user.mesa
         return redirect(url_for("monitorar"))
     return render_template("register.html", logged_in=current_user.is_authenticated)
 
