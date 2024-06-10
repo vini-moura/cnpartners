@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title%} Cadastrar KR {%endblock%}
+{% block content%}
+
+      <!-- Page Content -->
+      <div id="content">
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+              <div class="container-fluid">
+                  <div class="m-2" id="rowtext ">
+                    <h3>{{user_name}}</h3>
+                    <h6>{{user_time}}</h6>
+                  </div>
+              </div>
+          </nav>
+
+         <form action="{{ url_for('cadastrarkr')}}" method="POST">
+            {% for i in range(n_krs) %}
+            <input type="hidden" name="n_krs" value="{{n_krs}}">
+            <input type="hidden" name="id_obj" value="{{ id_obj }}">
+            <hr>
+            <h5>Kr nº {{ i+1 }}</h5>
+            <div class="row">
+               <div class="col-md-6">
+                  <label class="form-label">Digite o texto do novo KR:</label>
+                  <input type="text" name="texto" class="form-control">
+               </div>
+               <div class="col-md-6">
+                  <label class="form-label">Selecione o Tipo de KR</label>
+                  <select id="tipo" name="tipo" class="form-select" aria-label="Default select example">
+                      <option value="1">Aumentar</option>
+                      <option value="2">Diminuir</option>
+                      <option value="3">Fases</option>
+                  </select>
+               </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Selecione a unidade de medida</label>
+                    <select id="uni_med" name="uni_med" class="form-select" aria-label="Default select example">
+                        <option value="1">Inteiro</option>
+                        <option value="2">porcentagem</option>
+                        <option value="3">Fases</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Digite o valor inicial do novo KR:</label>
+                    <input type="text" name="valor_inicial" class="form-control">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                     <label class="form-label">Digite a meta do novo KR:</label>
+                     <input type="text" name="meta" class="form-control">
+                </div>
+            </div>
+            {% endfor %}
+            <hr>
+            <button id="btn_submit" type="submit" class="btn btn-primary">Submit</button>
+          </form>
+      </div>
+  </div>
+
+{% endblock "%}
