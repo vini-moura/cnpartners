@@ -16,9 +16,13 @@ from sqlalchemy.exc import IntegrityError
 import os
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get('FLASK_KEY')
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///posts.db")
+app.config["SECRET_KEY"] = 'VMLMABVC'  # development
+# app.config["SECRET_KEY"] = os.environ.get('FLASK_KEY')  # production
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=20)
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///crm.db"  # development
+
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///crm.db")  #production
 
 
 class Base(DeclarativeBase):
@@ -37,7 +41,7 @@ class Clientes(db.Model):
     nome: Mapped[str] = mapped_column(String(250), nullable=False)
     pj: Mapped[int] = mapped_column(Integer, nullable=False)
     email: Mapped[str] = mapped_column(String(250), nullable=False)
-    telefone: Mapped[int] = mapped_column(Integer, nullable=False)
+    telefone: Mapped[str] = mapped_column(String(30), nullable=False)
     endereco: Mapped[str] = mapped_column(String(300), nullable=True)
     id_assessor: Mapped[str] = mapped_column(Integer, nullable=False)
     assessor: Mapped[str] = mapped_column(String(250), nullable=False)
@@ -45,7 +49,7 @@ class Clientes(db.Model):
     cod_bolsa: Mapped[int] = mapped_column(Integer, nullable=True, unique=True)
     perfil: Mapped[int] = mapped_column(Integer, nullable=True)
     valor_estimado: Mapped[int] = mapped_column(Integer, nullable=True)
-    valor_atual: Mapped[int] = mapped_column(Integer, nullable=False)
+    valor_atual: Mapped[int] = mapped_column(Integer, nullable=True)
     abertura: Mapped[Date] = mapped_column(Date, nullable=True)
     fechamento: Mapped[Date] = mapped_column(Date, nullable=True)
     inicio: Mapped[Date] = mapped_column(Date, nullable=True)
@@ -72,28 +76,6 @@ class Tarefas(db.Model):
     status: Mapped[str] = mapped_column(String(250))
     observacao: Mapped[str] = mapped_column(String(500), nullable=True)
     mesa: Mapped[int] = mapped_column(Integer)
-
-
-class Renda_fixa(db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    tipo_titulo: Mapped[str] = mapped_column(String(250))
-    emissor: Mapped[str] = mapped_column(String(250))
-    data_vencimento: Mapped[str] = mapped_column(String(250))
-    taxa_juros: Mapped[float] = mapped_column(Float)
-    pu: Mapped[str] = mapped_column(String(250))
-    duration: Mapped[str] = mapped_column(String(250))
-
-
-class Carrinho(db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    categoria: Mapped[str] = mapped_column(String(250))
-    tipo: Mapped[str] = mapped_column(String(250))
-    nome: Mapped[str] = mapped_column(String(250))
-    vencimento: Mapped[float] = mapped_column(Float)
-    duration: Mapped[str] = mapped_column(String(250))
-    taxa_juros: Mapped[str] = mapped_column(String(250))
-    preco: Mapped[str] = mapped_column(String(250))
-    valor: Mapped[str] = mapped_column(String(250))
 
 
 with app.app_context():

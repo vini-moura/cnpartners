@@ -128,7 +128,7 @@ def cadastrar():
         fechamento = datetime.strptime(fechamento_str, formato_data).date() if fechamento_str else None
         novo = Clientes(
             nome=request.form.get('nome'),
-            pj=request.form.get('pj'),
+            pj=int(request.form.get('pj')),
             email=request.form.get('email'),
             telefone=request.form.get('telefone'),
             endereco=request.form.get('endereco'),
@@ -286,27 +286,6 @@ def adicionar_ativo(idi):
     return render_template("adicionar_ativo.html", user_name=user_name, cliente=cliente)
 
 
-@app.route('/adicionar_rendafixa/', methods=["POST", "GET"])
-@login_required
-def adicionar_rendafixa():
-    user_name = session.get('user_name')
-    mesa = session.get('mesa')
-    response = db.session.execute(db.select(Renda_fixa))
-    titulos = response.scalars()
-    return render_template("adicionar_rendafixa.html", user_name=user_name, mesa=mesa, titulos=titulos)
-
-
-@app.route('/adicionar_fundos/', methods=["POST", "GET"])
-@login_required
-def adicionar_fundos():
-    return render_template("adicionar_ativo.html")
-
-
-@app.route('/adicionar_rendavariavel/', methods=["POST", "GET"])
-@login_required
-def adicionar_rendavariavel():
-    return render_template("adicionar_ativo.html")
-
 
 @app.route('/editar_cliente/<int:id>', methods=["POST", "GET"])
 @login_required
@@ -319,7 +298,18 @@ def editar_cliente(id):
 @app.route('/perfil', methods=["POST", "GET"])
 @login_required
 def perfil():
-    return render_template("perfil.html")
+    if request.method == "POST":
+        name = request.form.get('name')
+        email = request.form.get('email')
+        senha_nova = request.form.get('senha nova')
+
+
+        return redirect(url_for("perfil.html"))
+    user_id = session.get('user_id')
+    result = db.session.execute(db.select(User).where(User.id == user_id))
+    user = result.scalar()
+    senha = check_password_hash(user.password,)
+    return render_template("perfil.html", user_name=user.name, )
 
 
 @app.route('/ativos', methods=["POST", "GET"])
@@ -363,4 +353,4 @@ def unauthorized(error):
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
