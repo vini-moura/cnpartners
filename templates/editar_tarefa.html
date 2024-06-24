@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+{% block title%} Editar Tarefa {%endblock%}
+{% block content %}
+<br>
+<br>
+
+<!--Clientes-->
+<h2>Editar Tarefa</h2>
+<form method="POST" action="{{ url_for('editar_tarefa', id=tarefa.id) }}">
+    <input type="hidden" name="opcd" value="{{ tarefa.id }}">
+    <div class="mb-3">
+        <label for="nomeTarefa" class="form-label">Tarefa</label>
+        <input type="text" class="form-control" id="nomeTarefa" name="tarefa" value="{{tarefa.tarefa}}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Prioridade</label>
+        <select class="form-select" id="prioridade" name="prioridade" required>
+            <option value="Alta">Alta</option>
+            <option value="Média">Média</option>
+            <option value="Baixa">Baixa</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="prazoTarefa" class="form-label">Prazo</label>
+        <input type="date" class="form-control" id="prazoTarefa" name="prazo" value="{{tarefa.prazo}}"  required>
+    </div>
+    <div class="mb-3">
+        <label for="nomeTarefa" class="form-label">Status</label>
+        <select class="form-select" id="status" name="status" required>
+            <option value="novo" {% if tarefa.status =="novo" %}selected{% endif %}>novo</option>
+            <option value="iniciado"  {% if tarefa.status=='iniciado' %}selected{% endif %}>Iniciado</option>
+            <option value="concluido" {% if tarefa.status=='concluido' %}selected{% endif %}>Concluído</option>
+            <option value="cancelado"  {% if tarefa.status=='cancelado' %}selected{% endif %}>Cancelado</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="nomeTarefa" class="form-label">Observação</label>
+        <textarea class="form-control" id="observacao" name="observacao" rows="4">{{ tarefa.observacao }}</textarea>
+    </div>
+    <br>
+    <div>
+        <input type="checkbox" name="mesa" value="mesa">
+        <label >Enviar para mesa?</label>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-success">Editar Tarefa</button>
+</form>
+{%endblock%}
