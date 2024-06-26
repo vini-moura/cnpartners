@@ -70,6 +70,8 @@ class Tarefas(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     cliente_id: Mapped[int] = mapped_column(Integer, nullable=False)
     nome_cliente: Mapped[str] = mapped_column(String(250))
+    assessor_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    assessor: Mapped[str] = mapped_column(String(250))
     tarefa: Mapped[str] = mapped_column(String(250))
     tipo: Mapped[str] = mapped_column(String(250))
     prioridade: Mapped[str] = mapped_column(String(250))

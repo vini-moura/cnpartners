@@ -121,8 +121,8 @@ def monitorar_tarefas():
     user_id = session.get('user_id')
     admin = session.get("admin")
     mesa = session.get("mesa")
-    tarefas = db.session.execute(db.select(Tarefas).where(Tarefas.mesa == mesa)).scalars()
-    return render_template('monitorar_tarefas.html', user_name=name, user_id=user_id, tarefas=tarefas, admin=admin, mesa=mesa)
+    tarefas = db.session.execute(db.select(Tarefas).where(Tarefas.assessor_id == user_id)).scalars()
+    return render_template('monitorar_tarefas.html', user_name=name, tarefas=tarefas, admin=admin, mesa=mesa)
 
 
 @app.route('/cadastrar', methods=["POST", "GET"])
@@ -209,6 +209,8 @@ def adicionar_tarefa():
         novo = Tarefas(
             cliente_id=did,
             nome_cliente=session.get('user_name'),
+            assessor_id=session.get('user_id'),
+            assessor=session.get('user_name'),
             tarefa=tarefa,
             tipo=tipo,
             prioridade=prioridade,

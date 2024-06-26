@@ -64,8 +64,8 @@ def register():
         login_user(new_user)
         session['user_id'] = new_user.id
         session["user_name"] = new_user.name
-        session['admin'] = new_user.admin
-        session['mesa'] = new_user.mesa
+        session['admin'] = user.admin
+        session['mesa'] = user.mesa
         return redirect(url_for("monitorar"))
     return render_template("register.html", logged_in=current_user.is_authenticated)
 
@@ -90,6 +90,7 @@ def login():
             session['user_id'] = user.id
             session['admin'] = user.admin
             session['mesa'] = user.mesa
+            session.permanent = True
             return redirect(url_for('monitorar'))
     return render_template("login.html", logged_in=current_user.is_authenticated)
 
@@ -108,6 +109,7 @@ def monitorar():
     user_id = session.get('user_id')
     admin = session.get("admin")
     mesa = session.get("mesa")
+    print(mesa)
     result = db.session.execute(db.select(Clientes).where(Clientes.id_assessor == user_id))
     clientes = result.scalars()
     return render_template('monitorar.html', user_name=name, user_id=user_id, clientes=clientes, admin=admin, mesa=mesa)
@@ -119,8 +121,8 @@ def monitorar_tarefas():
     user_id = session.get('user_id')
     admin = session.get("admin")
     mesa = session.get("mesa")
-    tarefas = db.session.execute(db.select(Tarefas).where(Tarefas.mesa == mesa)).scalars()
-    return render_template('monitorar_tarefas.html', user_name=name, user_id=user_id, tarefas=tarefas, admin=admin, mesa=mesa)
+    tarefas = db.session.execute(db.select(Tarefas).where(Tarefas.assessor_id == user_id)).scalars()
+    return render_template('monitorar_tarefas.html', user_name=name, tarefas=tarefas, admin=admin, mesa=mesa)
 
 
 @app.route('/cadastrar', methods=["POST", "GET"])
@@ -207,6 +209,8 @@ def adicionar_tarefa():
         novo = Tarefas(
             cliente_id=did,
             nome_cliente=session.get('user_name'),
+            assessor_id=session.get('user_id'),
+            assessor=session.get('user_name'),
             tarefa=tarefa,
             tipo=tipo,
             prioridade=prioridade,
@@ -323,11 +327,6 @@ def perfil():
     user_name = session.get('user_name')
     return render_template("perfil.html", user_name=user_name, user=user)
 
-
-@app.route('/okr', methods=["POST", "GET"])
-@login_required
-def okr():
-    return render_template("okr.html")
 
 @app.route('/verificar_conta')
 def verificar_conta():
