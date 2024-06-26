@@ -6,7 +6,10 @@
 <div class="container mt-4">
     <h2>Editar Tarefa: {{ tarefa.tarefa }}</h2>
     <form action="{{ url_for('editar_tarefa', id=tarefa.id) }}" method="post">
-
+        <div class="mb-3">
+            <label for="tarefa" class="form-label">nome:</label>
+            <input type="text" class="form-control" id="nome" name="nome" value="{{ tarefa.nome_cliente }}">
+        </div>
         <div class="mb-3">
             <label for="tarefa" class="form-label">Tarefa:</label>
             <input type="text" class="form-control" id="tarefa" name="tarefa" value="{{ tarefa.tarefa }}">

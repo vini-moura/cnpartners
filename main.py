@@ -239,6 +239,7 @@ def editar_tarefa():
         mesa = 1 if mesa == '1' else 0
 
         tarefa_to_update = db.session.execute(db.select(Tarefas).where(Tarefas.id == tid)).scalar()
+        tarefa_to_update.nome_cliente = request.form.get('nome')
         tarefa_to_update.tarefa = request.form.get('tarefa')
         tarefa_to_update.tipo = request.form.get('tipo')
         tarefa_to_update.prioridade = request.form.get('prioridade')
