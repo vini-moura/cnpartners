@@ -89,6 +89,7 @@ def login():
             session['user_id'] = user.id
             session['admin'] = user.admin
             session['mesa'] = user.mesa
+            session.permanent = True
             return redirect(url_for('monitorar'))
     return render_template("login.html", logged_in=current_user.is_authenticated)
 
