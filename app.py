@@ -46,7 +46,7 @@ class Clientes(db.Model):
     id_assessor: Mapped[str] = mapped_column(Integer, nullable=False)
     assessor: Mapped[str] = mapped_column(String(250), nullable=False)
     conta: Mapped[int] = mapped_column(Integer, nullable=True, unique=True)
-    cod_bolsa: Mapped[int] = mapped_column(Integer, nullable=True, unique=True)
+    cod_bolsa: Mapped[int] = mapped_column(Integer, unique=True)
     perfil: Mapped[int] = mapped_column(Integer, nullable=True)
     valor_estimado: Mapped[int] = mapped_column(Integer, nullable=True)
     valor_atual: Mapped[int] = mapped_column(Integer, nullable=True)

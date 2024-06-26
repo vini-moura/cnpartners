@@ -6,7 +6,7 @@
 <div class="container">
     <h4>Adicionar Nova Tarefa: {{ cliente.nome }}</h4>
 
-    <form method="POST" action="{{ url_for('adicionar_tarefa', id=cliente.id) }}">
+    <form method="POST" action="{{ url_for('adicionar_tarefa') }}">
         <input type="hidden" name="id" value="{{ id }}">
         <div class="mb-3">
             <label for="nomeTarefa" class="form-label">Tarefa</label>
