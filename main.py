@@ -19,7 +19,6 @@ def home():
     if request.method == "POST":
         email = request.form.get('email')
         password = request.form.get('password')
-
         result = db.session.execute(db.select(User).where(User.email == email))
         user = result.scalar()
         # Email doesn't exist or password incorrect.
@@ -57,16 +56,15 @@ def register():
             email=request.form.get('email'),
             password=hash_and_salted_password,
             name=request.form.get('name'),
-            admin= int(request.form.get('admin')),
-            mesa=int(request.form.get('mesa'))
+            admin=0
         )
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
         session['user_id'] = new_user.id
         session["user_name"] = new_user.name
-        session['admin'] = new_user.admin
-        session['mesa'] = new_user.mesa
+        session['admin'] = user.admin
+        session['mesa'] = user.mesa
         return redirect(url_for("monitorar"))
     return render_template("register.html", logged_in=current_user.is_authenticated)
 
@@ -114,6 +112,16 @@ def monitorar():
     clientes = result.scalars()
     return render_template('monitorar.html', user_name=name, user_id=user_id, clientes=clientes, admin=admin, mesa=mesa)
 
+@app.route('/monitorar_tarefas', methods=["POST", "GET"])
+@login_required
+def monitorar_tarefas():
+    name = session.get('user_name')
+    user_id = session.get('user_id')
+    admin = session.get("admin")
+    mesa = session.get("mesa")
+    tarefas = db.session.execute(db.select(Tarefas).where(Tarefas.mesa == mesa)).scalars()
+    return render_template('monitorar_tarefas.html', user_name=name, user_id=user_id, tarefas=tarefas, admin=admin, mesa=mesa)
+
 
 @app.route('/cadastrar', methods=["POST", "GET"])
 @login_required
@@ -128,7 +136,7 @@ def cadastrar():
         fechamento = datetime.strptime(fechamento_str, formato_data).date() if fechamento_str else None
         novo = Clientes(
             nome=request.form.get('nome'),
-            pj=int(request.form.get('pj')),
+            pj=request.form.get('pj'),
             email=request.form.get('email'),
             telefone=request.form.get('telefone'),
             endereco=request.form.get('endereco'),
@@ -180,9 +188,10 @@ def tarefas():
     return render_template("tarefas.html", user_name=user_name, cliente=cliente, tarefa=tarefa, mesa=mesa)
 
 
-@app.route('/adicionar_tarefa/<int:id>', methods=["POST", "GET"])
+@app.route('/adicionar_tarefa', methods=["POST", "GET"])
 @login_required
-def adicionar_tarefa(idi):
+def adicionar_tarefa():
+    did = session.get('cliente_id')
     if request.method == "POST":
         tarefa = request.form.get('tarefa')
         tipo = request.form.get('tipo')
@@ -196,7 +205,7 @@ def adicionar_tarefa(idi):
             mesa = 0
 
         novo = Tarefas(
-            cliente_id=idi,
+            cliente_id=did,
             tarefa=tarefa,
             tipo=tipo,
             prioridade=prioridade,
@@ -207,61 +216,65 @@ def adicionar_tarefa(idi):
         db.session.add(novo)
         db.session.commit()
 
-        return redirect(url_for('tarefas', id=idi))
+        return redirect(url_for('sessiondid', did=did, route='tarefas'))
     user_name = session.get('user_name')
-    result = db.session.execute(db.select(Clientes).where(Clientes.id == idi))
+    result = db.session.execute(db.select(Clientes).where(Clientes.id == did))
     cliente = result.scalar()
-    return render_template("adicionar_tarefa.html", user_name=user_name, cliente=cliente, id=id)
+    return render_template("adicionar_tarefa.html", user_name=user_name, cliente=cliente, id=did)
 
 
-@app.route('/editar_tarefa/<int:id>', methods=["POST", "GET"])
+@app.route('/editar_tarefa', methods=["POST", "GET"])
 @login_required
-def editar_tarefa(idi):
+def editar_tarefa():
+    tid = session.get('tarefa_id')
+    print(tid)
     if request.method == "POST":
-        tarefa = request.form.get('tarefa')
-        prioridade = request.form.get('prioridade')
         prazo = request.form.get('prazo')
         prazo = datetime.strptime(prazo, "%Y-%m-%d").date() if prazo else None
-        status = request.form.get('status')
-        observacao = request.form.get('observacao')
         mesa = request.form.get('mesa')
-        if mesa == 'mesa':
-            mesa = 1
-        else:
-            mesa = 0
-        tarefa_to_update = db.session.execute(db.select(Tarefas).where(Tarefas.id == id)).scalar()
-        with app.app_context():
-            tarefa_to_update.tarefa = tarefa
-            tarefa_to_update.prioridade = prioridade
-            tarefa_to_update.prazo = prazo
-            tarefa_to_update.status = status
-            tarefa_to_update.observacao = observacao
-            tarefa_to_update.mesa = mesa
-            db.session.merge(tarefa_to_update)
+        mesa = 1 if mesa == '1' else 0
+
+        tarefa_to_update = db.session.execute(db.select(Tarefas).where(Tarefas.id == tid)).scalar()
+        tarefa_to_update.tarefa = request.form.get('tarefa')
+        tarefa_to_update.tipo = request.form.get('tipo')
+        tarefa_to_update.prioridade = request.form.get('prioridade')
+        tarefa_to_update.prazo = prazo
+        tarefa_to_update.status = request.form.get('status')
+        tarefa_to_update.observacao = request.form.get('observacao')
+        tarefa_to_update.mesa = mesa
+
+        try:
             db.session.commit()
-        tid = tarefa_to_update.cliente_id
-        cliente = db.session.execute(db.select(Clientes).where(Clientes.id == tid)).scalar()
-        return redirect(url_for("sessiondid", did=cliente.id, route='tarefas'))
+            flash('Tarefa atualizada com sucesso!', 'success')
+        except IntegrityError:
+            db.session.rollback()
+            flash('Erro ao atualizar a tarefa. Tente novamente.', 'error')
+
+        return redirect(url_for("sessiondid", did=tarefa_to_update.cliente_id, route='tarefas'))
+
     user_name = session.get('user_name')
-    result = db.session.execute(db.select(Tarefas).where(Tarefas.id == idi))
-    tarefa = result.scalar()
+    tarefa = db.session.execute(db.select(Tarefas).where(Tarefas.id == tid)).scalar()
+    print(tarefa)
     return render_template("editar_tarefa.html", tarefa=tarefa, user_name=user_name)
 
 
-@app.route('/tarefas_concluidas/<int:id>', methods=["POST", "GET"])
+@app.route('/tarefas_concluidas', methods=["POST", "GET"])
 @login_required
-def tarefas_concluidas(idi):
+def tarefas_concluidas():
+    did = session.get('cliente_id')
     user_name = session.get('user_name')
-    result = db.session.execute(db.select(Tarefas).where(Tarefas.cliente_id == idi, Tarefas.status == 'concluido'))
-    tarefa = result.scalars()
-    return render_template("tarefas_concluidas", tarefa=tarefa, user_name=user_name)
+    tarefa = db.session.execute(db.select(Tarefas).where(Tarefas.cliente_id == did,
+                                                         Tarefas.status == 'concluido')).scalars()
+    cliente = db.session.execute(db.select(Clientes).where(Clientes.id == did)).scalar()
+    return render_template("tarefas_concluidas.html", tarefa=tarefa, user_name=user_name, did=did, cliente=cliente)
 
 
-@app.route("/tarefas_mesa/")
+@app.route("/tarefas_mesa")
 @login_required
 def tarefas_mesa():
-    tarefas = db.session.execute(db.select(Tarefas).where(Tarefas.mesa == 1, Tarefas.status == 'concluido')).scalars()
-    return render_template('tarefas_mesa.html', tarefas=tarefas)
+    tarefas = db.session.execute(db.select(Tarefas).where(Tarefas.mesa == 1, Tarefas.status != 'concluido')).scalars()
+    user_name = session.get('user_name')
+    return render_template('tarefas_mesa.html', user_name=user_name, tarefas=tarefas)
 
 
 @app.route("/tarefas_concluidas_mesa/")
@@ -271,51 +284,43 @@ def tarefas_concluidas_mesa():
     return render_template('tarefas_concluidas_mesa.html', tarefas=tarefas)
 
 
-CARRINHO = []
-
-
-@app.route('/adicionar_ativo/<int:id>', methods=["POST", "GET"])
+@app.route('/editar_cliente', methods=["POST", "GET"])
 @login_required
-def adicionar_ativo(idi):
+def editar_cliente():
+    did = session.get('cliente_id')
+    cliente = db.session.execute(db.select(Clientes).where(Clientes.id == did)).scalar()
     if request.method == "POST":
-        form = request.form.get('id')
-        return redirect(url_for("tarefas", id=form))
+        cliente.nome = request.form['nome']
+        cliente.email = request.form['email']
+        cliente.telefone = request.form['telefone']
+        cliente.endereco = request.form['endereco']
+        cliente.conta = request.form.get('conta')
+        cliente.cod_bolsa = request.form.get('cod_bolsa')
+        cliente.perfil = request.form.get('perfil')
+        cliente.status = request.form.get('status')
+        db.session.commit()
+        return redirect(url_for("sessiondid", did=did, route='tarefas'))
     user_name = session.get('user_name')
-    result = db.session.execute(db.select(Clientes).where(Clientes.id == idi))
-    cliente = result.scalar()
-    return render_template("adicionar_ativo.html", user_name=user_name, cliente=cliente)
-
-
-
-@app.route('/editar_cliente/<int:id>', methods=["POST", "GET"])
-@login_required
-def editar_cliente(id):
-    result = db.session.execute(db.select(Clientes).where(Clientes.id == id))
-    cliente = result.scalars()
-    return render_template("editar_cliente.html", cliente=cliente)
+    return render_template("editar_cliente.html", cliente=cliente, user_name=user_name)
 
 
 @app.route('/perfil', methods=["POST", "GET"])
 @login_required
 def perfil():
-    if request.method == "POST":
-        name = request.form.get('name')
-        email = request.form.get('email')
-        senha_nova = request.form.get('senha nova')
-
-
-        return redirect(url_for("perfil.html"))
-    user_id = session.get('user_id')
-    result = db.session.execute(db.select(User).where(User.id == user_id))
-    user = result.scalar()
-    senha = check_password_hash(user.password,)
-    return render_template("perfil.html", user_name=user.name, )
-
-
-@app.route('/ativos', methods=["POST", "GET"])
-@login_required
-def ativos():
-    return render_template("ativos.html")
+    user = db.session.execute(db.select(User).where(User.id == session.get('user_id'))).scalar()
+    if request.method == 'POST':
+        user.email = request.form['email']
+        user.name = request.form['name']
+        user.admin = request.form.get('admin', type=int)
+        user.mesa = request.form.get('mesa', type=int)
+        new_password = request.form.get('password')
+        if new_password:
+            user.password = generate_password_hash(new_password, method='pbkdf2:sha256', salt_length=8)
+        db.session.commit()
+        flash('Perfil atualizado com sucesso!', 'success')
+        return redirect(url_for('perfil'))
+    user_name = session.get('user_name')
+    return render_template("perfil.html", user_name=user_name, user=user)
 
 
 @app.route('/verificar_conta')
@@ -333,13 +338,25 @@ def verificar_cod_bolsa():
 
 
 @app.route("/sessiondid/<int:did>/<route>")
+@login_required
 def sessiondid(did, route):
     if route == 'tarefas':
+        # monitorar para tarefas
         session['cliente_id'] = did
-        print(did)
         return redirect(url_for('tarefas'))
-    else:
-        pass
+    elif route == 'editar_tarefa':
+        #de tarefas para editar tarefa
+        session['tarefa_id'] = did
+        return redirect(url_for('editar_tarefa'))
+    elif route == "adicionar_tarefa":
+        # tarefas para adicionar tarefa
+        return redirect(url_for('adicionar_tarefa'))
+    elif route == 'tarefas_concluidas':
+        # tarefas para tarefas concluidas
+        return redirect(url_for('tarefas_concluidas'))
+    elif route == 'editar_cliente':
+        # de tarefas para editar cliente
+        return redirect(url_for('editar_cliente'))
 
 
 @app.errorhandler(401)
@@ -349,7 +366,7 @@ def unauthorized(error):
 
 @app.errorhandler(404)
 def unauthorized(error):
-    return redirect(url_for('login'))
+    return render_template('404.html'), 404
 
 
 if __name__ == "__main__":

@@ -3,7 +3,9 @@
 {% block content%}
 <br>
 <div class="" id="">
-    <h5>Tarefas</h5>
+    <h3 style="text-align: center;">Tarefas Concluídas</h3>
+    <h5 style="text-align: center;">Cliente: {{ cliente.nome }}</h5>
+    <br>
     <ul class="list-group">
         <li class="list-group-item">
             <table class="table ">
@@ -35,34 +37,8 @@
         </li>
     </ul>
     <div style="margin-top: 20px;">
-       <a href="{{ url_for('adicionar_tarefa', id=cliente.id) }}" class="btn btn-success">Adicionar Tarefa</a>
-       <a href="{{ url_for('tarefas_concluidas', id=cliente.id) }}" class="btn btn-success">Tarefas Concluídas</a>
-    </div>
-    <hr>
-    <h5>Ativos Alocados em Carteira</h5>
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">Ativo</th>
-            <th scope="col">Quantidade</th>
-            <th scope="col">Valor Unitário</th>
-            <th scope="col">Valor Total</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for ativo in ativos %}
-            <tr>
-                <td>{{ ativo.nome }}</td>
-                <td>{{ ativo.quantidade }}</td>
-                <td>{{ ativo.valor_unitario }}</td>
-                <td>{{ ativo.valor_total }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <div style="margin-top: 20px;">
-       <a href="{{ url_for('adicionar_ativo', id=cliente.id) }}" class="btn btn-success">Adicionar Ativo</a>
+       <a href="{{ url_for('sessiondid', did =did, route='adicionar_tarefa') }}" class="btn btn-success">Adicionar Tarefa</a>
+       <a href="{{ url_for('sessiondid', did =did,route='tarefas_concluidas') }}" class="btn btn-success">Tarefas Concluídas</a>
     </div>
 
     <br>
@@ -70,7 +46,7 @@
     <br>
 
     <div class="editar-dados-cliente" style="margin-top: 20px;">
-        <a href="{{ url_for('editar_cliente', id=cliente.id) }}" class="btn btn-warning">Editar Dados do Cliente</a>
+        <a href="{{ url_for('editar_cliente', did=did) }}" class="btn btn-warning">Editar Dados do Cliente</a>
     </div>
     <br>
     <br>

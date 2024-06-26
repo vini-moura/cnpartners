@@ -18,7 +18,8 @@
             </div>
             <hr>
             <ul class="list-unstyled components">
-                <li> <a href="{{url_for('monitorar')}}"> <i class="fa fa-bar-chart"></i> Monitorar </a>  </li>
+                <li> <a href="{{url_for('monitorar_tarefas')}}"><i class="fa fa-line-chart"></i>Monitorar Tarefas</a></li>
+                <li> <a href="{{url_for('monitorar')}}"> <i class="fa fa-bar-chart"></i> Monitorar Clientes </a>  </li>
                 {% if mesa == 1: %}
                 <li> <a href="{{url_for('tarefas_mesa')}}"> <i class="fa fa-paper-plane"></i> Tarefas da Mesa </a> </li>
                 {% endif%}
@@ -42,7 +43,7 @@
     </div>
 
 
-  <!-- Bootstrap and JavaScript -->
+  <!-- Bootstrap e JavaScript -->
   <script src="{‌{ url_for('static', filename='vendor/jquery/jquery.min.js')}}"></script>
   <script src="{‌{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
   <script src="{‌{ url_for('static', filename='js/validacoes.js')}}"></script>
