@@ -56,7 +56,8 @@ def register():
             email=request.form.get('email'),
             password=hash_and_salted_password,
             name=request.form.get('name'),
-            admin=0
+            admin=request.form.get('admin'),
+            mesa=request.form.get('mesa')
         )
         db.session.add(new_user)
         db.session.commit()
