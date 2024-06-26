@@ -112,6 +112,16 @@ def monitorar():
     clientes = result.scalars()
     return render_template('monitorar.html', user_name=name, user_id=user_id, clientes=clientes, admin=admin, mesa=mesa)
 
+@app.route('/monitorar_tarefas', methods=["POST", "GET"])
+@login_required
+def monitorar_tarefas():
+    name = session.get('user_name')
+    user_id = session.get('user_id')
+    admin = session.get("admin")
+    mesa = session.get("mesa")
+    tarefas = db.session.execute(db.select(Tarefas).where(Tarefas.mesa == mesa)).scalars()
+    return render_template('monitorar_tarefas.html', user_name=name, user_id=user_id, tarefas=tarefas, admin=admin, mesa=mesa)
+
 
 @app.route('/cadastrar', methods=["POST", "GET"])
 @login_required
@@ -216,32 +226,35 @@ def adicionar_tarefa():
 @app.route('/editar_tarefa', methods=["POST", "GET"])
 @login_required
 def editar_tarefa():
-    did = session.get('cliente_id')
     tid = session.get('tarefa_id')
+    print(tid)
     if request.method == "POST":
         prazo = request.form.get('prazo')
         prazo = datetime.strptime(prazo, "%Y-%m-%d").date() if prazo else None
         mesa = request.form.get('mesa')
-        if mesa == 'mesa':
-            mesa = 1
-        else:
-            mesa = 0
+        mesa = 1 if mesa == '1' else 0
+
         tarefa_to_update = db.session.execute(db.select(Tarefas).where(Tarefas.id == tid)).scalar()
-        with app.app_context():
-            tarefa_to_update.tarefa = request.form.get('tarefa')
-            tarefa_to_update.prioridade = request.form.get('prioridade')
-            tarefa_to_update.prazo = prazo
-            tarefa_to_update.status = request.form.get('status')
-            tarefa_to_update.observacao = request.form.get('observacao')
-            tarefa_to_update.mesa = mesa
-            db.session.merge(tarefa_to_update)
+        tarefa_to_update.tarefa = request.form.get('tarefa')
+        tarefa_to_update.tipo = request.form.get('tipo')
+        tarefa_to_update.prioridade = request.form.get('prioridade')
+        tarefa_to_update.prazo = prazo
+        tarefa_to_update.status = request.form.get('status')
+        tarefa_to_update.observacao = request.form.get('observacao')
+        tarefa_to_update.mesa = mesa
+
+        try:
             db.session.commit()
-        tuid = tarefa_to_update.cliente_id
-        cliente = db.session.execute(db.select(Clientes).where(Clientes.id == tuid)).scalar()
-        return redirect(url_for("sessiondid", did=cliente.id, route='tarefas'))
-    tid = session.get('tarefa_id')
+            flash('Tarefa atualizada com sucesso!', 'success')
+        except IntegrityError:
+            db.session.rollback()
+            flash('Erro ao atualizar a tarefa. Tente novamente.', 'error')
+
+        return redirect(url_for("sessiondid", did=tarefa_to_update.cliente_id, route='tarefas'))
+
     user_name = session.get('user_name')
     tarefa = db.session.execute(db.select(Tarefas).where(Tarefas.id == tid)).scalar()
+    print(tarefa)
     return render_template("editar_tarefa.html", tarefa=tarefa, user_name=user_name)
 
 
@@ -275,7 +288,7 @@ def tarefas_concluidas_mesa():
 @login_required
 def editar_cliente():
     did = session.get('cliente_id')
-    cliente = db.session.execute(db.select(Clientes).where(Clientes.id == did)).scalars()
+    cliente = db.session.execute(db.select(Clientes).where(Clientes.id == did)).scalar()
     if request.method == "POST":
         cliente.nome = request.form['nome']
         cliente.email = request.form['email']
@@ -287,7 +300,8 @@ def editar_cliente():
         cliente.status = request.form.get('status')
         db.session.commit()
         return redirect(url_for("sessiondid", did=did, route='tarefas'))
-    return render_template("editar_cliente.html", cliente=cliente)
+    user_name = session.get('user_name')
+    return render_template("editar_cliente.html", cliente=cliente, user_name=user_name)
 
 
 @app.route('/perfil', methods=["POST", "GET"])
@@ -331,16 +345,17 @@ def sessiondid(did, route):
         session['cliente_id'] = did
         return redirect(url_for('tarefas'))
     elif route == 'editar_tarefa':
+        #de tarefas para editar tarefa
         session['tarefa_id'] = did
         return redirect(url_for('editar_tarefa'))
     elif route == "adicionar_tarefa":
-        # tarefas para adicionar tarefas
+        # tarefas para adicionar tarefa
         return redirect(url_for('adicionar_tarefa'))
     elif route == 'tarefas_concluidas':
         # tarefas para tarefas concluidas
         return redirect(url_for('tarefas_concluidas'))
     elif route == 'editar_cliente':
-        # tarefas para tarefas concluidas
+        # de tarefas para editar cliente
         return redirect(url_for('editar_cliente'))
 
 

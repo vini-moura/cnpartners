@@ -27,7 +27,7 @@
                         <td>{{ tarefa.prioridade }}</td>
                         <td>{{ tarefa.prazo }}</td>
                         <td>{{ tarefa.status }}</td>
-                        <td><a href="{{url_for('editar_tarefa', id=tarefa.id)}}">Editar</a></td>
+                        <td><a href="{{url_for('sessiondid', did=tarefa.id, route='editar_tarefa')}}">Editar</a></td>
                        <!-- <td>{{ tarefa.telefone }}</td> -->
                     </tr>
                     {% endfor %}

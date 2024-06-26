@@ -1,49 +1,52 @@
 {% extends "base.html" %}
 {% from 'bootstrap5/form.html' import render_form %}
-{% block title%} Editar Tarefa {%endblock%}
+{% block title %} Editar Tarefa {% endblock %}
 {% block content %}
-<br>
-<br>
 
-<!--Clientes-->
-<h2>Editar Tarefa</h2>
-<form method="POST" action="{{ url_for('editar_tarefa', id=tarefa.id) }}">
-    <input type="hidden" name="opcd" value="{{ tarefa.id }}">
-    <div class="mb-3">
-        <label for="nomeTarefa" class="form-label">Tarefa</label>
-        <input type="text" class="form-control" id="nomeTarefa" name="tarefa" value="{{tarefa.tarefa}}">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Prioridade</label>
-        <select class="form-select" id="prioridade" name="prioridade" required>
-            <option value="Alta">Alta</option>
-            <option value="Média">Média</option>
-            <option value="Baixa">Baixa</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label for="prazoTarefa" class="form-label">Prazo</label>
-        <input type="date" class="form-control" id="prazoTarefa" name="prazo" value="{{tarefa.prazo}}"  required>
-    </div>
-    <div class="mb-3">
-        <label for="nomeTarefa" class="form-label">Status</label>
-        <select class="form-select" id="status" name="status" required>
-            <option value="novo" {% if tarefa.status =="novo" %}selected{% endif %}>novo</option>
-            <option value="iniciado"  {% if tarefa.status=='iniciado' %}selected{% endif %}>Iniciado</option>
-            <option value="concluido" {% if tarefa.status=='concluido' %}selected{% endif %}>Concluído</option>
-            <option value="cancelado"  {% if tarefa.status=='cancelado' %}selected{% endif %}>Cancelado</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label for="nomeTarefa" class="form-label">Observação</label>
-        <textarea class="form-control" id="observacao" name="observacao" rows="4">{{ tarefa.observacao }}</textarea>
-    </div>
-    <br>
-    <div>
-        <input type="checkbox" name="mesa" value="mesa">
-        <label >Enviar para mesa?</label>
-    </div>
-    <br>
-    <button type="submit" class="btn btn-success">Editar Tarefa</button>
-</form>
-{%endblock%}
+<div class="container mt-4">
+    <h2>Editar Tarefa: {{ tarefa.tarefa }}</h2>
+    <form action="{{ url_for('editar_tarefa', id=tarefa.id) }}" method="post">
+
+        <div class="mb-3">
+            <label for="tarefa" class="form-label">Tarefa:</label>
+            <input type="text" class="form-control" id="tarefa" name="tarefa" value="{{ tarefa.tarefa }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="tipo" class="form-label">Tipo:</label>
+            <input type="text" class="form-control" id="tipo" name="tipo" value="{{ tarefa.tipo }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="prioridade" class="form-label">Prioridade:</label>
+            <input type="text" class="form-control" id="prioridade" name="prioridade" value="{{ tarefa.prioridade }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="prazo" class="form-label">Prazo:</label>
+            <input type="date" class="form-control" id="prazo" name="prazo" value="{{ tarefa.prazo }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="status" class="form-label">Status:</label>
+            <input type="text" class="form-control" id="status" name="status" value="{{ tarefa.status }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="observacao" class="form-label">Observação:</label>
+            <textarea class="form-control" id="observacao" name="observacao">{{ tarefa.observacao }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="mesa" class="form-label">Mesa:</label>
+            <select class="form-control" id="mesa" name="mesa">
+                <option value="0" {% if tarefa.mesa == 0 %}selected{% endif %}>Não</option>
+                <option value="1" {% if tarefa.mesa == 1 %}selected{% endif %}>Sim</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+    </form>
+</div>
+
+{% endblock %}
