@@ -108,7 +108,6 @@ def monitorar():
     user_id = session.get('user_id')
     admin = session.get("admin")
     mesa = session.get("mesa")
-    print(mesa)
     result = db.session.execute(db.select(Clientes).where(Clientes.id_assessor == user_id))
     clientes = result.scalars()
     return render_template('monitorar.html', user_name=name, user_id=user_id, clientes=clientes, admin=admin, mesa=mesa)
@@ -207,6 +206,7 @@ def adicionar_tarefa():
 
         novo = Tarefas(
             cliente_id=did,
+            nome_cliente=session.get('user_name'),
             tarefa=tarefa,
             tipo=tipo,
             prioridade=prioridade,

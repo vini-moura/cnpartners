@@ -208,6 +208,7 @@ def adicionar_tarefa():
 
         novo = Tarefas(
             cliente_id=did,
+            nome_cliente=session.get('user_name'),
             tarefa=tarefa,
             tipo=tipo,
             prioridade=prioridade,
