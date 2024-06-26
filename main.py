@@ -194,6 +194,8 @@ def tarefas():
 @login_required
 def adicionar_tarefa():
     did = session.get('cliente_id')
+    cliente = db.session.execute(db.select(Clientes).where(Clientes.id == did)).scalar()
+    user_name = session.get('user_name')
     if request.method == "POST":
         tarefa = request.form.get('tarefa')
         tipo = request.form.get('tipo')
@@ -208,7 +210,7 @@ def adicionar_tarefa():
 
         novo = Tarefas(
             cliente_id=did,
-            nome_cliente=session.get('user_name'),
+            nome_cliente=cliente.nome,
             assessor_id=session.get('user_id'),
             assessor=session.get('user_name'),
             tarefa=tarefa,
@@ -220,11 +222,8 @@ def adicionar_tarefa():
         )
         db.session.add(novo)
         db.session.commit()
-
         return redirect(url_for('sessiondid', did=did, route='tarefas'))
-    user_name = session.get('user_name')
-    result = db.session.execute(db.select(Clientes).where(Clientes.id == did))
-    cliente = result.scalar()
+
     return render_template("adicionar_tarefa.html", user_name=user_name, cliente=cliente, id=did)
 
 
