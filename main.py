@@ -325,7 +325,7 @@ def perfil():
 
 @app.route('/okr', methods=["POST", "GET"])
 @login_required
-def perfil():
+def okr():
     return render_template("okr.html")
 
 @app.route('/verificar_conta')
