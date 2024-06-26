@@ -323,6 +323,11 @@ def perfil():
     return render_template("perfil.html", user_name=user_name, user=user)
 
 
+@app.route('/okr', methods=["POST", "GET"])
+@login_required
+def perfil():
+    return render_template("okr.html")
+
 @app.route('/verificar_conta')
 def verificar_conta():
     conta = request.args.get('conta')
